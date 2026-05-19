@@ -3,280 +3,436 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-<title>人鱼补光 · 专业级手机补光灯</title>
+<title>人鱼补光 · 拍照+补光一体</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:#000;color:#fff}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;background:#000;color:#fff}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;position:relative}
-#lightCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;transition:background .3s}
-.light-layer{position:absolute;top:0;left:0;width:100%;height:100%;transition:opacity .3s}
-#layoutOverlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none}
-#layoutOverlay .gl{position:absolute;background:rgba(255,255,255,0.1)}
-#layoutOverlay .gl.h{left:0;right:0;height:1px}#layoutOverlay .gl.v{top:0;bottom:0;width:1px}
-#layoutOverlay .gl.ht{top:33.33%}#layoutOverlay .gl.hm{top:50%}#layoutOverlay .gl.hb{top:66.66%}
-#layoutOverlay .gl.vl{left:33.33%}#layoutOverlay .gl.vc{left:50%}#layoutOverlay .gl.vr{left:66.66%}
-#layoutOverlay .rm{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55vmin;height:55vmin;border-radius:50%;border:3px solid rgba(255,255,255,0.2)}
-.layout-ring #layoutOverlay .rm{display:block}
-.layout-ring #lightCanvas .light-layer{border-radius:50%;width:70vmin;height:70vmin;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
-#controls{position:fixed;bottom:0;left:0;right:0;z-index:10;background:linear-gradient(0deg,rgba(0,0,0,0.9) 60%,transparent);padding:12px 14px env(safe-area-inset-bottom,16px) 14px;transition:transform .4s}
-#controls.hidden{transform:translateY(100%)}
-#topBar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;padding:env(safe-area-inset-top,8px) 12px 8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.5),transparent);transition:opacity .4s;pointer-events:none}
-#topBar.hidden{opacity:0}
-#topBar .brand{font-size:.7rem;color:rgba(255,255,255,0.5);pointer-events:auto}
-#topBar .actions{display:flex;gap:6px;pointer-events:auto}
-#topBar .actions button{background:rgba(255,255,255,0.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
-#topBar .actions button:active{background:rgba(255,255,255,0.25)}
-#topBar .actions button.active{background:rgba(255,255,255,0.25)}
-.tabs{display:flex;gap:4px;margin-bottom:8px;justify-content:center}
-.tab{padding:5px 16px;border-radius:18px;font-size:.65rem;font-weight:500;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);border:none;cursor:pointer;transition:.2s}
-.tab.active{background:rgba(255,255,255,0.2);color:#fff}
-.panel{display:none}.panel.active{display:block}
-.color-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:4px 0 8px}
-.color-swatch{aspect-ratio:1;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
-.color-swatch.active{border-color:#fff;transform:scale(1.1)}
-.color-swatch.active::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.55rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
-.mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:4px 0 8px}
-.mode-btn{padding:7px 4px;border-radius:8px;font-size:.6rem;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.06);cursor:pointer;text-align:center;transition:.2s}
-.mode-btn .mi{display:block;font-size:1rem}
-.mode-btn.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.2)}
-.pro-badge{font-size:.4rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:2px;padding:1px 3px;margin-left:1px;vertical-align:super}
-.layout-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:4px 0}
-.layout-btn{padding:5px 4px;border-radius:6px;font-size:.55rem;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.06);cursor:pointer;text-align:center;transition:.2s}
-.layout-btn .li{display:block;font-size:1.1rem}
-.layout-btn.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.2)}
-.slider-row{display:flex;align-items:center;gap:8px;margin:3px 0}
-.slider-row label{font-size:.6rem;color:rgba(255,255,255,0.35);min-width:24px}
-.slider-row input[type="range"]{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:rgba(255,255,255,0.12);outline:none}
-.slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;cursor:pointer}
-.slider-row .val{font-size:.6rem;color:rgba(255,255,255,0.4);min-width:20px;text-align:right}
-.tools-row{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0}
-.tool-btn{display:flex;align-items:center;gap:2px;padding:4px 8px;border-radius:6px;font-size:.58rem;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:.2s}
-.tool-btn:active{transform:scale(.95)}
-.tool-btn.active{background:rgba(255,255,255,0.15);color:#fff}
-.wake-indicator{position:fixed;top:46px;left:50%;transform:translateX(-50%);z-index:11;background:rgba(0,0,0,0.5);padding:3px 10px;border-radius:12px;font-size:.55rem;color:rgba(255,255,255,0.4);display:none}
-.wake-indicator.show{display:block}
-#tapHint{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);z-index:9;font-size:.55rem;color:rgba(255,255,255,0.12);animation:pulseT 2s ease-in-out infinite;pointer-events:none;opacity:0;transition:opacity .5s}
-#tapHint.show{opacity:1}
-@keyframes pulseT{0%,100%{opacity:.12}50%{opacity:.3}}
-#premiumPanel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:50;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;padding:20px}
-#premiumPanel.show{display:flex}
-#premiumPanel .modal{background:rgba(20,20,30,0.98);border-radius:20px;padding:24px 20px;max-width:320px;width:100%;text-align:center;border:1px solid rgba(255,255,255,0.06)}
-#premiumPanel .modal h2{font-size:1.1rem;margin-bottom:4px;background:linear-gradient(135deg,#f093fb,#f5576c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-#premiumPanel .modal .sub{font-size:.72rem;color:rgba(255,255,255,0.35);margin-bottom:10px}
-#premiumPanel .modal .qrs{display:flex;gap:14px;justify-content:center;margin-bottom:8px}
-#premiumPanel .modal .qrs .qi{text-align:center;cursor:pointer}
-#premiumPanel .modal .qrs .qi .qb{width:90px;height:90px;border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,0.08);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:.5rem;color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.03)}
-#premiumPanel .modal .qrs .qi .qb img{width:100%;height:100%;object-fit:cover}
-#premiumPanel .modal .qrs .qi .ql{font-size:.55rem;color:rgba(255,255,255,0.3)}
-#premiumPanel .modal .price{font-size:1.4rem;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:6px}
-#premiumPanel .modal .old-price{font-size:.7rem;color:rgba(255,255,255,0.2);text-decoration:line-through;margin-bottom:8px}
-#premiumPanel .modal .btn-unlock{background:linear-gradient(135deg,#f093fb,#f5576c);border:none;color:#fff;padding:10px 30px;border-radius:12px;font-size:.85rem;cursor:pointer;transition:.2s;width:100%;margin-top:4px}
-#premiumPanel .modal .btn-unlock:disabled{opacity:.4;cursor:default}
-#premiumPanel .modal .btn-unlock:not(:disabled):active{transform:scale(.97)}
-#premiumPanel .modal .tip{font-size:.65rem;color:rgba(255,255,255,0.3);margin-top:8px}
-#premiumPanel .modal .countdown{font-size:2rem;font-weight:700;color:#4ade80;margin:6px 0;display:none}
-#premiumPanel .modal .btn-skip{background:none;border:none;color:rgba(255,255,255,0.25);font-size:.7rem;cursor:pointer;margin-top:6px;padding:4px 8px}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:#fff;padding:8px 18px;border-radius:10px;font-size:.72rem;opacity:0;transition:all .4s;z-index:30;pointer-events:none;border:1px solid rgba(255,255,255,0.05)}
+
+/* Main view: camera + light overlay */
+#mainView{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:flex;flex-direction:column;background:#000}
+#camPreview{flex:1;width:100%;object-fit:cover;background:#111;display:block}
+#camPreview.front{transform:scaleX(-1)}
+
+/* Fill light overlay on top of camera */
+#lightOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;transition:background .3s,opacity .3s}
+#lightOverlay.light-mode{background:#ffffff;opacity:0}
+#lightOverlay.cam-mode{opacity:0.3;mix-blend-mode:overlay}
+
+/* No camera: pure fill light mode */
+#fillScreen{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;display:none;transition:background .3s}
+#fillScreen.show{display:block}
+
+/* Overlay lines/grid */
+#gridOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:none;display:none}
+#gridOverlay.show{display:block}
+#gridOverlay .g{position:absolute;background:rgba(255,255,255,0.12)}
+#gridOverlay .gh{left:0;right:0;height:1px}
+#gridOverlay .gv{top:0;bottom:0;width:1px}
+#gridOverlay .t{top:33.33%}#gridOverlay .m{top:50%}#gridOverlay .b{top:66.66%}
+#gridOverlay .l{left:33.33%}#gridOverlay .c{left:50%}#gridOverlay .r{left:66.66%}
+
+/* Top bar */
+#topBar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:env(safe-area-inset-top,10px) 12px 8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.6),transparent);pointer-events:none;transition:opacity .4s}
+#topBar.hide{opacity:0}
+#topBar .left{display:flex;gap:6px;pointer-events:auto}
+#topBar .right{display:flex;gap:6px;pointer-events:auto}
+#topBar button{background:rgba(255,255,255,0.12);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#topBar button:active{background:rgba(255,255,255,0.25)}
+#topBar .switch-btn{font-size:.65rem;width:auto;padding:0 10px;border-radius:17px}
+
+/* Bottom controls */
+#controls{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:8px 12px env(safe-area-inset-bottom,14px) 12px;background:linear-gradient(0deg,rgba(0,0,0,0.7),transparent);transition:opacity .4s}
+#controls.hide{opacity:0;pointer-events:none}
+.cam-row{display:flex;align-items:center;justify-content:space-evenly;padding:4px 0}
+.cam-row button{background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.cam-row .shutter{width:60px;height:60px;border:3px solid #fff;background:rgba(255,255,255,0.15);border-radius:50%;position:relative}
+.cam-row .shutter::after{content:'';position:absolute;top:4px;left:4px;right:4px;bottom:4px;background:#fff;border-radius:50%;transition:.2s}
+.cam-row .shutter:active::after{background:rgba(255,255,255,0.5)}
+.cam-row .shutter.rec{border-color:#ff4444}
+.cam-row .shutter.rec::after{background:#ff4444;border-radius:4px;top:16px;left:16px;right:16px;bottom:16px}
+.cam-row .ic-btn{width:38px;height:38px;font-size:.85rem}
+.cam-row .ic-btn.s{width:auto;padding:0 10px;border-radius:19px;font-size:.6rem}
+.ctrl-row{display:flex;gap:4px;margin:4px 0;overflow-x:auto;padding:2px 0;-webkit-overflow-scrolling:touch}
+.ctrl-row::-webkit-scrollbar{display:none}
+.ctrl-chip{flex-shrink:0;padding:4px 10px;border-radius:12px;font-size:.58rem;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.06);cursor:pointer;white-space:nowrap;transition:.2s}
+.ctrl-chip.active{background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.2)}
+.ctrl-row .chip-pro{font-size:.4rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:2px;padding:0 3px;margin-left:2px}
+
+/* Photo strip */
+#photoStrip{display:flex;gap:4px;overflow-x:auto;padding:4px 0;min-height:40px;align-items:center}
+#photoStrip::-webkit-scrollbar{display:none}
+#photoStrip .ph{flex-shrink:0;width:36px;height:36px;border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);cursor:pointer;background:rgba(255,255,255,0.03)}
+#photoStrip .ph img{width:100%;height:100%;object-fit:cover;display:block}
+#photoStrip .empty{font-size:.5rem;color:rgba(255,255,255,0.15);margin:0 auto}
+
+/* Slider */
+.sl-row{display:flex;align-items:center;gap:6px;margin:2px 0}
+.sl-row label{font-size:.55rem;color:rgba(255,255,255,0.3);min-width:20px}
+.sl-row input[type="range"]{flex:1;-webkit-appearance:none;height:2px;background:rgba(255,255,255,0.12);border-radius:1px;outline:none}
+.sl-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer}
+.sl-row .v{font-size:.55rem;color:rgba(255,255,255,0.35);min-width:18px;text-align:right}
+
+/* Gallery */
+#gallery{position:fixed;top:0;left:0;right:0;bottom:0;z-index:20;background:rgba(0,0,0,0.95);display:none;flex-direction:column}
+#gallery.show{display:flex}
+#gallery .top{display:flex;justify-content:space-between;padding:env(safe-area-inset-top,12px) 16px 8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+#gallery .top h3{font-size:.85rem;color:rgba(255,255,255,0.6)}
+#gallery .top button{background:rgba(255,255,255,0.08);border:none;color:#fff;padding:5px 14px;border-radius:8px;font-size:.7rem;cursor:pointer}
+#gallery .grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px;align-content:start}
+#gallery .grid .gi{aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative;background:rgba(255,255,255,0.02)}
+#gallery .grid .gi img{width:100%;height:100%;object-fit:cover;display:block}
+#gallery .empty{display:flex;flex:1;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:.75rem}
+
+/* Viewer */
+#viewer{position:fixed;top:0;left:0;right:0;bottom:0;z-index:25;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center}
+#viewer.show{display:flex}
+#viewer img{max-width:95vw;max-height:80vh;object-fit:contain;border-radius:6px}
+#viewer .va{position:absolute;bottom:env(safe-area-inset-bottom,16px);display:flex;gap:10px}
+#viewer .va button{background:rgba(255,255,255,0.1);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:.68rem;cursor:pointer}
+#viewer .vc{position:absolute;top:env(safe-area-inset-top,12px);right:12px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:.8rem;cursor:pointer}
+
+/* Premium */
+#proPanel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:30;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;padding:20px}
+#proPanel.show{display:flex}
+#proPanel .md{background:rgba(18,18,28,0.98);border-radius:18px;padding:22px 18px;max-width:300px;width:100%;text-align:center;border:1px solid rgba(255,255,255,0.05)}
+#proPanel .md h2{font-size:1rem;margin-bottom:2px;background:linear-gradient(135deg,#f093fb,#f5576c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#proPanel .md .sub{font-size:.65rem;color:rgba(255,255,255,0.3);margin-bottom:8px}
+#proPanel .md .price{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:2px}
+#proPanel .md .old{font-size:.6rem;color:rgba(255,255,255,0.15);text-decoration:line-through;margin-bottom:10px}
+#proPanel .md .qrs{display:flex;gap:12px;justify-content:center;margin-bottom:6px}
+#proPanel .md .qrs .qi{text-align:center;cursor:pointer}
+#proPanel .md .qrs .qi .qb{width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);margin:0 auto 2px;display:flex;align-items:center;justify-content:center;font-size:.45rem;color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02)}
+#proPanel .md .qrs .qi .qb img{width:100%;height:100%;object-fit:cover;display:block}
+#proPanel .md .qrs .qi .ql{font-size:.5rem;color:rgba(255,255,255,0.25)}
+#proPanel .md .pbtn{background:linear-gradient(135deg,#f093fb,#f5576c);border:none;color:#fff;padding:8px 24px;border-radius:10px;font-size:.78rem;cursor:pointer;width:100%;margin:6px 0 2px}
+#proPanel .md .pbtn:disabled{opacity:.4}
+#proPanel .md .cd{font-size:1.8rem;font-weight:700;color:#4ade80;margin:4px 0;display:none}
+#proPanel .md .skip{background:none;border:none;color:rgba(255,255,255,0.2);font-size:.65rem;cursor:pointer;padding:4px}
+#proPanel .md .tip{font-size:.6rem;color:rgba(255,255,255,0.2);margin-top:4px}
+
+/* QR enlarge */
+#qrBig{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:35;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;flex-direction:column;padding:30px;cursor:pointer}
+#qrBig img{max-width:min(65vw,260px);border-radius:12px;background:#fff;padding:5px}
+#qrBig .l{font-size:.65rem;color:rgba(255,255,255,0.35);margin-top:10px}
+#qrBig .x{position:absolute;top:env(safe-area-inset-top,16px);right:16px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:.9rem;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:#fff;padding:7px 16px;border-radius:8px;font-size:.7rem;opacity:0;transition:all .4s;z-index:40;pointer-events:none;border:1px solid rgba(255,255,255,0.04)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:360px){.color-grid{grid-template-columns:repeat(6,1fr)}.mode-grid{grid-template-columns:repeat(3,1fr)}}
+
+@media(max-width:360px){.ctrl-chip{font-size:.52rem;padding:3px 8px}}
 </style>
 </head>
 <body>
 
-<div id="lightCanvas"><div class="light-layer" id="lightLayer" style="background:#fff"></div></div>
-<div id="layoutOverlay">
-  <div class="gl h ht"></div><div class="gl h hm"></div><div class="gl h hb"></div>
-  <div class="gl v vl"></div><div class="gl v vc"></div><div class="gl v vr"></div>
-  <div class="rm"></div>
-</div>
-<div class="wake-indicator" id="wakeIndicator">🌙 屏幕常亮</div>
-<div id="tapHint" class="show">点击屏幕显示控制面板</div>
+<div id="mainView">
+  <video id="camPreview" autoplay playsinline muted></video>
+  <div id="lightOverlay" class="cam-mode"></div>
+  <div id="gridOverlay"><div class="g gh t"></div><div class="g gh m"></div><div class="g gh b"></div><div class="g gv l"></div><div class="g gv c"></div><div class="g gv r"></div></div>
 
-<div id="topBar">
-  <div class="brand">🧜‍♀️ 人鱼补光</div>
-  <div class="actions">
-    <button onclick="toggleWakeLock()" id="wakeBtn" title="屏幕常亮">🌙</button>
-    <button onclick="toggleFullscreen()" title="全屏">⛶</button>
-    <button onclick="showPremium()" title="解锁Pro" id="proBtn">💎</button>
+  <div id="topBar">
+    <div class="left">
+      <button onclick="switchCam()">🔄</button>
+      <button onclick="showGallery()" style="font-size:.7rem">🖼</button>
+    </div>
+    <div class="right">
+      <button onclick="toggleWake()" id="wakeBtn">🌙</button>
+      <button onclick="toggleGrid()" id="gridBtn">⊞</button>
+      <button onclick="showPro()">💎</button>
+      <button class="switch-btn" onclick="toggleMode()">💡 补光</button>
+    </div>
   </div>
-</div>
 
-<div id="controls">
-  <div class="tabs">
-    <button class="tab active" data-tab="colors" onclick="switchTab('colors')">🎨 颜色</button>
-    <button class="tab" data-tab="modes" onclick="switchTab('modes')">✨ 灯光</button>
-    <button class="tab" data-tab="tools" onclick="switchTab('tools')">🔧 工具</button>
-  </div>
-  <div class="panel active" id="panelColors">
-    <div class="color-grid" id="colorGrid"></div>
-    <div class="slider-row">
+  <div id="controls">
+    <!-- modes row 1: color presets -->
+    <div class="ctrl-row" id="colorRow"></div>
+    <!-- modes row 2: light modes -->
+    <div class="ctrl-row" id="modeRow"></div>
+    <!-- brightness -->
+    <div class="sl-row">
       <label>☀️</label>
-      <input type="range" id="brightnessSlider" min="5" max="100" value="100" oninput="updateBrightness(this.value)">
-      <span class="val" id="brightnessVal">100%</span>
+      <input type="range" id="brightSlider" min="5" max="100" value="40" oninput="updateBright(this.value)">
+      <span class="v" id="brightVal">40%</span>
     </div>
-  </div>
-  <div class="panel" id="panelModes">
-    <div class="mode-grid" id="modeGrid">
-      <div class="mode-btn active" data-mode="steady" onclick="selectMode('steady')"><span class="mi">◉</span>常亮</div>
-      <div class="mode-btn" data-mode="breathe" onclick="selectMode('breathe')"><span class="mi">〰️</span>呼吸</div>
-      <div class="mode-btn" data-mode="pulse" onclick="selectMode('pulse')"><span class="mi">⚡</span>闪烁</div>
-      <div class="mode-btn" data-mode="gradient" onclick="selectMode('gradient')"><span class="mi">🌈</span>渐变</div>
-      <div class="mode-btn" data-mode="candle" onclick="selectMode('candle')"><span class="mi">🕯️</span>烛光</div>
-      <div class="mode-btn" data-mode="aurora" onclick="selectMode('aurora')"><span class="mi">🌌</span>极光<span class="pro-badge">Pro</span></div>
-      <div class="mode-btn" data-mode="music" onclick="selectMode('music')"><span class="mi">🎵</span>律动<span class="pro-badge">Pro</span></div>
-      <div class="mode-btn" data-mode="strobe" onclick="selectMode('strobe')"><span class="mi">💥</span>爆闪<span class="pro-badge">Pro</span></div>
+    <!-- camera controls -->
+    <div class="cam-row">
+      <button class="ic-btn" onclick="showPro()" style="font-size:.6rem;width:auto;padding:0 8px;border-radius:16px">🎨 颜色</button>
+      <button class="shutter" id="shutterBtn"></button>
+      <button class="ic-btn" onclick="switchCam()" style="font-size:.8rem">🔄</button>
     </div>
-    <div class="slider-row">
-      <label>💨</label>
-      <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed(this.value)">
-      <span class="val" id="speedVal">5</span>
-    </div>
-    <div class="layout-grid">
-      <div class="layout-btn active" data-layout="full" onclick="selectLayout('full')"><span class="li">⬛</span>全屏</div>
-      <div class="layout-btn" data-layout="top" onclick="selectLayout('top')"><span class="li">⬆️</span>上半</div>
-      <div class="layout-btn" data-layout="bottom" onclick="selectLayout('bottom')"><span class="li">⬇️</span>下半</div>
-      <div class="layout-btn" data-layout="ring" onclick="selectLayout('ring')"><span class="li">⭕</span>环形</div>
-      <div class="layout-btn" data-layout="dual" onclick="selectLayout('dual')"><span class="li">◧</span>双色</div>
-    </div>
-  </div>
-  <div class="panel" id="panelTools">
-    <div class="tools-row">
-      <button class="tool-btn" id="gridBtn" onclick="toggleGrid()">⊞ 网格<span class="pro-badge">Pro</span></button>
-      <button class="tool-btn" id="levelBtn" onclick="toggleLevel()">◎ 水平仪<span class="pro-badge">Pro</span></button>
-      <button class="tool-btn" id="mirrorBtn" onclick="toggleMirror()">🪞 镜像</button>
-      <button class="tool-btn" onclick="showPremium()" style="color:#f093fb">💎 解锁Pro</button>
-    </div>
-    <div style="font-size:.55rem;color:rgba(255,255,255,0.15);padding:4px 0;line-height:1.6">
-      <span id="modeLabel">常亮</span> · <span id="colorLabel">白色</span>
-      <br>💡 手机亮度调到最大，效果更好
-    </div>
+    <!-- photo strip -->
+    <div id="photoStrip"><span class="empty">拍照后显示在此</span></div>
   </div>
 </div>
 
-<!-- PRO MODAL -->
-<div id="premiumPanel">
-  <div class="modal">
+<!-- Fill light only mode -->
+<div id="fillScreen"></div>
+
+<!-- Gallery -->
+<div id="gallery">
+  <div class="top">
+    <h3>🖼 照片</h3>
+    <button onclick="closeGallery()">✕ 关闭</button>
+  </div>
+  <div class="grid" id="galGrid"></div>
+  <div class="empty" id="galEmpty">还没有照片 📸</div>
+</div>
+
+<!-- Viewer -->
+<div id="viewer">
+  <button class="vc" onclick="closeViewer()">✕</button>
+  <div id="viewContent"></div>
+  <div class="va">
+    <button onclick="dlMedia()">💾 保存</button>
+    <button onclick="shareMedia()">📤 分享</button>
+    <button onclick="delMedia()">🗑 删除</button>
+  </div>
+</div>
+
+<!-- Premium -->
+<div id="proPanel">
+  <div class="md">
     <h2>🧜‍♀️ 人鱼补光 Pro</h2>
     <div class="sub">解锁全部灯光特效</div>
-    <div class="old-price">原价 ¥6.66</div>
+    <div class="old">原价 ¥6.66</div>
     <div class="price">¥3.33</div>
-    <div style="font-size:.65rem;color:rgba(255,255,255,0.2);margin-bottom:10px">🕐 永久使用 · 一杯奶茶钱</div>
+    <div style="font-size:.6rem;color:rgba(255,255,255,0.15);margin-bottom:8px">🕐 永久使用 · 一杯奶茶钱</div>
     <div class="qrs">
       <div class="qi" onclick="enlargeQR('wechat')"><div class="qb" id="pwq">微信收款码</div><div class="ql">💚 微信</div></div>
       <div class="qi" onclick="enlargeQR('alipay')"><div class="qb" id="paq">支付宝收款码</div><div class="ql">💙 支付宝</div></div>
     </div>
-    <div class="tip">👆 点击二维码放大 → 付款后返回点击下方</div>
-    <button class="btn-unlock" id="payBtn" onclick="doUnlock()">💎 我付好了，立即解锁</button>
-    <div class="countdown" id="unlockCD">3</div>
-    <button class="btn-skip" onclick="hidePremium()">稍后再说</button>
+    <div class="tip">👆 点二维码放大 → 付款后返回</div>
+    <button class="pbtn" id="payBtn" onclick="doUnlock()">💎 我付好了，立即解锁</button>
+    <div class="cd" id="unlockCD">3</div>
+    <button class="skip" onclick="hidePro()">稍后再说</button>
   </div>
 </div>
 
-<!-- QR ENLARGE -->
-<div id="qrEnlarge" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:60;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;flex-direction:column;padding:30px;cursor:pointer" onclick="closeQR()">
-  <button style="position:absolute;top:env(safe-area-inset-top,20px);right:20px;background:rgba(255,255,255,0.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1rem;cursor:pointer">✕</button>
-  <img id="qrLargeImg" style="max-width:min(70vw,280px);max-height:70vw;border-radius:14px;background:#fff;padding:6px">
-  <div style="font-size:.7rem;color:rgba(255,255,255,0.4);margin-top:12px">长按识别二维码付款</div>
+<!-- QR Big -->
+<div id="qrBig" onclick="closeQR()">
+  <button class="x" onclick="closeQR()">✕</button>
+  <img id="qrImg">
+  <div class="l">长按识别二维码 · 付款后点"我付好了"</div>
 </div>
 
 <div class="toast" id="toast"></div>
+<canvas id="photoCanvas" style="display:none"></canvas>
 
 <script>
 // ===== STATE =====
 var S={
-  color:'#ffffff',colorName:'纯白',brightness:parseInt(localStorage.getItem('lm_b'))||100,
-  mode:'steady',layout:'full',speed:5,gridOn:false,levelOn:false,mirrorOn:false,
-  isPremium:localStorage.getItem('lm_p')==='true',
-  wakeLock:null,wakeOn:false,grad1:'#ff6b6b',grad2:'#a855f7'
+  color:'#ffffff',colorName:'纯白',bright:40,mode:'steady',
+  isPrem:localStorage.getItem('lm_p')==='true',
+  camStream:null,facing:'user',onCam:true,grid:false,wake:false,wakeLock:null,
+  photos:[],viewIdx:-1,recording:false,mediaRecorder:null,chunks:[]
 };
 
 // ===== PRESETS =====
-var CP={
-  basic:[{c:'#ffffff',n:'纯白'},{c:'#fff5f5',n:'粉白'},{c:'#fff0e6',n:'暖白'},{c:'#f0f8ff',n:'冷白'},{c:'#ffe4e1',n:'樱花粉'},{c:'#ffd1dc',n:'少女粉'},{c:'#ffb6c1',n:'浅粉'},{c:'#ffc0cb',n:'粉红'}],
-  pro:[{c:'#ffffff',n:'纯白'},{c:'#fff5f5',n:'粉白'},{c:'#fff0e6',n:'暖白'},{c:'#f0f8ff',n:'冷白'},{c:'#ffe4e1',n:'樱花粉'},{c:'#ffd1dc',n:'少女粉'},{c:'#ffb6c1',n:'浅粉'},{c:'#ffc0cb',n:'粉红'},{c:'#fff4e0',n:'奶油'},{c:'#ffe4b5',n:'米黄'},{c:'#ffd700',n:'金色'},{c:'#ffa500',n:'橙色'},{c:'#ff8c00',n:'暖橙'},{c:'#ff6b35',n:'日落'},{c:'#ff7f50',n:'珊瑚'},{c:'#fa8072',n:'鲑鱼粉'},{c:'#f0f8ff',n:'冰蓝'},{c:'#e6f3ff',n:'天空'},{c:'#b0d4f1',n:'淡蓝'},{c:'#87ceeb',n:'天蓝'},{c:'#b0e0e6',n:'粉蓝'},{c:'#e0f7fa',n:'薄荷'},{c:'#ccffcc',n:'浅绿'},{c:'#98fb98',n:'柔绿'},{c:'#ff6b9d',n:'霓虹粉'},{c:'#c084fc',n:'炫紫'},{c:'#818cf8',n:'电蓝'},{c:'#34d399',n:'荧光绿'},{c:'#fbbf24',n:'亮黄'},{c:'#fb923c',n:'亮橙'},{c:'#ff6b6b',n:'红粉'},{c:'#e879f9',n:'亮紫'},{c:'#2d1b69',n:'星空紫'},{c:'#1a1a2e',n:'深夜蓝'},{c:'#16213e',n:'深海'},{c:'#0f3460',n:'靛蓝'},{c:'#533483',n:'紫罗兰'},{c:'#8b5cf6',n:'魔幻紫'},{c:'#ec4899',n:'魅粉'}]
+var COLS={
+  f:[
+    {c:'#ffffff',n:'纯白'},{c:'#fff5f5',n:'粉白'},{c:'#fff0e6',n:'暖白'},{c:'#f0f8ff',n:'冷白'},
+    {c:'#ffe4e1',n:'樱花粉'},{c:'#ffd1dc',n:'少女粉'},{c:'#ffb6c1',n:'浅粉'},{c:'#ffc0cb',n:'粉红'}
+  ],
+  p:[
+    {c:'#ffffff',n:'纯白'},{c:'#fff5f5',n:'粉白'},{c:'#fff0e6',n:'暖白'},{c:'#f0f8ff',n:'冷白'},
+    {c:'#ffe4e1',n:'樱花粉'},{c:'#ffd1dc',n:'少女粉'},{c:'#ffb6c1',n:'浅粉'},{c:'#ffc0cb',n:'粉红'},
+    {c:'#fff4e0',n:'奶油'},{c:'#ffe4b5',n:'米黄'},{c:'#ffd700',n:'金色'},{c:'#ffa500',n:'橙色'},
+    {c:'#ff8c00',n:'暖橙'},{c:'#ff6b35',n:'日落'},{c:'#ff7f50',n:'珊瑚'},{c:'#fa8072',n:'鲑鱼粉'},
+    {c:'#e6f3ff',n:'天空'},{c:'#b0d4f1',n:'淡蓝'},{c:'#87ceeb',n:'天蓝'},{c:'#b0e0e6',n:'粉蓝'},
+    {c:'#e0f7fa',n:'薄荷'},{c:'#ccffcc',n:'浅绿'},{c:'#ff6b9d',n:'霓虹粉'},{c:'#c084fc',n:'炫紫'},
+    {c:'#818cf8',n:'电蓝'},{c:'#34d399',n:'荧光绿'},{c:'#fbbf24',n:'亮黄'},{c:'#ff6b6b',n:'红粉'},
+    {c:'#e879f9',n:'亮紫'},{c:'#2d1b69',n:'星空紫'},{c:'#1a1a2e',n:'深夜蓝'},{c:'#0f3460',n:'靛蓝'},
+    {c:'#533483',n:'紫罗兰'},{c:'#8b5cf6',n:'魔幻紫'},{c:'#ec4899',n:'魅粉'}
+  ]
 };
-var premiumModes=['aurora','music','strobe'];
+var MODES=[
+  {k:'steady',i:'◉',n:'常亮',p:false},{k:'breathe',i:'〰️',n:'呼吸',p:false},
+  {k:'pulse',i:'⚡',n:'闪烁',p:false},{k:'gradient',i:'🌈',n:'渐变',p:false},
+  {k:'candle',i:'🕯️',n:'烛光',p:false},{k:'aurora',i:'🌌',n:'极光',p:true},
+  {k:'music',i:'🎵',n:'律动',p:true},{k:'strobe',i:'💥',n:'爆闪',p:true}
+];
 
+// ===== INIT =====
 function init(){
-  document.getElementById('brightnessSlider').value=S.brightness;
-  document.getElementById('brightnessVal').textContent=S.brightness+'%';
-  renderColors();applyLight();setupTap();
-  document.getElementById('customColorPicker')&&(document.getElementById('customColorPicker').value='#ffffff');
-  if('wakeLock'in navigator&&!S.wakeOn)setTimeout(function(){toggleWakeLock()},1000);
+  renderColors();renderModes();updateOverlay();
+  document.getElementById('brightSlider').value=S.bright;
+  document.getElementById('brightVal').textContent=S.bright+'%';
+  loadPhotos();updateStrip();
+  setupTap();startCam();
+  if('wakeLock'in navigator)setTimeout(function(){if(!S.wake)toggleWake()},1500);
 }
-function renderColors(){
-  var g=document.getElementById('colorGrid');g.innerHTML='';
-  var colors=S.isPremium?CP.pro:CP.basic;
-  colors.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='color-swatch'+(c.c===S.color?' active':'');
-    d.style.background=c.c;d.title=c.n;
-    d.onclick=function(){S.color=c.c;S.colorName=c.n;applyLight();
-      document.querySelectorAll('.color-swatch').forEach(function(e){e.classList.remove('active')});
-      this.classList.add('active');updateStatusLabel()};
-    g.appendChild(d);
-  });
+function startCam(){
+  var v=document.getElementById('camPreview');
+  if(S.camStream){S.camStream.getTracks().forEach(function(t){t.stop()});S.camStream=null}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:S.facing,width:{ideal:1280},height:{ideal:720}},audio:true}).then(function(s){
+    S.camStream=s;v.srcObject=s;
+    if(S.facing==='user')v.classList.add('front');else v.classList.remove('front');
+    v.play();
+  }).catch(function(e){showToast('⚠️ 相机: '+e.message)});
 }
-function applyLight(){
-  var L=document.getElementById('lightLayer'),C=document.getElementById('lightCanvas'),b=S.brightness/100;
-  C.classList.remove('layout-ring');
-  if(S.layout==='ring')C.classList.add('layout-ring');
-  L.style.background=S.color;L.style.opacity=b;C.style.background='#000';L.style.animation='none';
-  if(S.mode==='aurora'){L.style.background='linear-gradient(135deg,'+S.grad1+','+S.grad2+','+S.grad1+')';L.style.backgroundSize='400% 400%';L.style.animation='auAn '+(11-S.speed)+'s ease infinite'}
-  applyLayout();stopAnim();
-  if(['breathe','pulse','candle','strobe'].includes(S.mode))startAnim();
-}
-function applyLayout(){
-  var L=document.getElementById('lightLayer'),C=document.getElementById('lightCanvas');C.classList.remove('layout-ring');
-  L.style.borderRadius='0';L.style.width='100%';L.style.height='100%';L.style.position='absolute';L.style.top='0';L.style.left='0';L.style.transform='none';
-  document.querySelectorAll('#layoutOverlay .gl').forEach(function(e){e.style.display='none'});
-  document.querySelector('#layoutOverlay .rm').style.display='none';
-  switch(S.layout){
-    case'full':break;
-    case'top':L.style.height='50%';L.style.top='0';break;
-    case'bottom':L.style.height='50%';L.style.top='50%';break;
-    case'ring':C.classList.add('layout-ring');L.style.borderRadius='50%';L.style.width='60vmin';L.style.height='60vmin';L.style.position='absolute';L.style.top='50%';L.style.left='50%';L.style.transform='translate(-50%,-50%)';break;
-    case'dual':L.style.background='linear-gradient(90deg,'+S.color+' 50%,#ff6b6b 50%)';L.style.opacity=S.brightness/100;break;
+function switchCam(){S.facing=S.facing==='user'?'environment':'user';startCam()}
+
+// ===== LIGHT OVERLAY =====
+function updateOverlay(){
+  var o=document.getElementById('lightOverlay');
+  o.style.background=S.color;
+  o.style.opacity=S.bright/100;
+  if(S.mode==='aurora'){
+    o.style.background='linear-gradient(135deg,'+S.color+', #ff6b6b, '+S.color+')';
+    o.style.backgroundSize='400% 400%';
+    o.style.animation='aurora '+(6)+'s ease infinite';
+  }else{
+    o.style.animation='none';
   }
 }
-function selectMode(m){
-  if(premiumModes.includes(m)&&!S.isPremium){showPremium();showToast('💎 解锁 Pro 可使用此模式');return}
-  S.mode=m;document.querySelectorAll('.mode-btn').forEach(function(e){e.classList.toggle('active',e.dataset.mode===m)});
-  document.getElementById('gradColorRow')&&(document.getElementById('gradColorRow').style.display=(m==='gradient'||m==='aurora')?'flex':'none');
-  stopAnim();applyLight();updateStatusLabel();
-}
-function selectLayout(l){S.layout=l;document.querySelectorAll('.layout-btn').forEach(function(e){e.classList.toggle('active',e.dataset.layout===l)});applyLight()}
-function updateBrightness(v){S.brightness=parseInt(v);localStorage.setItem('lm_b',v);document.getElementById('brightnessVal').textContent=v+'%';applyLight()}
-function updateSpeed(v){S.speed=parseInt(v);document.getElementById('speedVal').textContent=v;if(['breathe','pulse','candle','strobe','gradient','aurora'].includes(S.mode)){stopAnim();applyLight()}}
-var aid=null;
-function startAnim(){var L=document.getElementById('lightLayer'),C=document.getElementById('lightCanvas');function loop(t){var sf=S.speed*0.5,b=S.brightness/100;switch(S.mode){case'breathe':{var a=(Math.sin(t/1000*sf)+1)/2;L.style.background=S.color;L.style.opacity=Math.max(0.05,b*0.2)+(b-Math.max(0.05,b*0.2))*a;C.style.background='#000'}break;case'pulse':{var p=(t/1000*sf*2)%1;a=p<0.3?1:(p<0.35?1-(p-0.3)/0.05:0);L.style.background=S.color;L.style.opacity=Math.max(0.05,b*a);C.style.background='#000'}break;case'candle':{var w=24+Math.random()*20;L.style.background='hsl('+w+',40%,'+(45+Math.random()*20)+'%)';L.style.opacity=Math.min(1,b*(0.85+Math.random()*0.15));C.style.background='#000'}break;case'strobe':{var o=(t/1000*sf*4)%1<0.5;L.style.background=o?S.color:'#000';L.style.opacity=o?b:0;C.style.background='#000'}break}aid=requestAnimationFrame(loop)}loop(0)}
-function stopAnim(){if(aid){cancelAnimationFrame(aid);aid=null}document.getElementById('lightLayer').style.animation='none'}
-function switchTab(t){document.querySelectorAll('.tab').forEach(function(e){e.classList.toggle('active',e.dataset.tab===t)});document.querySelectorAll('.panel').forEach(function(e){e.classList.remove('active')});document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active')}
 
-// ===== TAP =====
-var cv=true,hht=null;
-function setupTap(){
-  document.addEventListener('click',function(e){
-    if(e.target.closest('#controls')||e.target.closest('#topBar')||e.target.closest('#premiumPanel')||e.target.closest('#qrEnlarge'))return;
-    toggleC();
+// ===== COLORS =====
+function renderColors(){
+  var r=document.getElementById('colorRow');r.innerHTML='';
+  var cols=S.isPrem?COLS.p:COLS.f;
+  cols.forEach(function(c){
+    var d=document.createElement('div');
+    d.className='ctrl-chip'+(c.c===S.color?' active':'');
+    d.style.background=c.c=='#ffffff'?'rgba(255,255,255,0.15)':c.c;
+    if(c.c==='#ffffff'||c.c==='#fff5f5'||c.c==='#fff0e6'||c.c==='#f0f8ff')d.style.color='#666';
+    d.textContent=c.n;
+    d.onclick=function(){S.color=c.c;S.colorName=c.n;updateOverlay();document.querySelectorAll('#colorRow .ctrl-chip').forEach(function(e){e.classList.remove('active')});this.classList.add('active');updateStatus()};
+    r.appendChild(d);
   });
-  resetHT();
 }
-function toggleC(){cv=!cv;document.getElementById('controls').classList.toggle('hidden',!cv);document.getElementById('topBar').classList.toggle('hidden',!cv);document.getElementById('tapHint').classList.toggle('show',!cv);if(cv)resetHT()}
-function resetHT(){if(hht)clearTimeout(hht);hht=setTimeout(function(){if(cv){cv=false;document.getElementById('controls').classList.add('hidden');document.getElementById('topBar').classList.add('hidden');document.getElementById('tapHint').classList.add('show')}},6000)}
+function renderModes(){
+  var r=document.getElementById('modeRow');r.innerHTML='';
+  MODES.forEach(function(m){
+    var d=document.createElement('div');
+    d.className='ctrl-chip'+(m.k===S.mode?' active':'');
+    d.innerHTML=m.i+' '+m.n+(m.p?' <span class="chip-pro">Pro</span>':'');
+    d.onclick=function(){if(m.p&&!S.isPrem){showPro();showToast('💎 解锁 Pro 使用 '+m.n);return}S.mode=m.k;updateOverlay();document.querySelectorAll('#modeRow .ctrl-chip').forEach(function(e){e.classList.remove('active')});this.classList.add('active');updateStatus()};
+    r.appendChild(d);
+  });
+}
+
+// ===== CAMERA CAPTURE =====
+function capturePhoto(){
+  var v=document.getElementById('camPreview'),c=document.getElementById('photoCanvas');
+  if(!v.videoWidth){showToast('⚠️ 相机未就绪');return}
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  var ctx=c.getContext('2d');
+  if(S.facing==='user'){ctx.translate(c.width,0);ctx.scale(-1,1)}
+  ctx.drawImage(v,0,0,c.width,c.height);
+  // Apply light color filter
+  var id=ctx.getImageData(0,0,c.width,c.height),d=id.data;
+  var r=parseInt(S.color.slice(1,3),16),gv=parseInt(S.color.slice(3,5),16),b=parseInt(S.color.slice(5,7),16);
+  var intensity=S.bright/100;
+  for(var i=0;i<d.length;i+=4){
+    d[i]=Math.min(255,d[i]+Math.round((r-128)*intensity*0.15));
+    d[i+1]=Math.min(255,d[i+1]+Math.round((gv-128)*intensity*0.1));
+    d[i+2]=Math.min(255,d[i+2]+Math.round((b-128)*intensity*0.12));
+    d[i]=Math.min(255,d[i]+10);
+    d[i+1]=Math.min(255,d[i+1]+8);
+    d[i+2]=Math.min(255,d[i+2]+6);
+  }
+  ctx.putImageData(id,0,0);
+  var url=c.toDataURL('image/jpeg',0.92);
+  showToast('📸 拍照成功！');
+  // Flash
+  var fl=document.createElement('div');fl.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:15;opacity:0;pointer-events:none';
+  fl.style.background=S.color;document.body.appendChild(fl);
+  requestAnimationFrame(function(){fl.style.transition='opacity .1s';fl.style.opacity='.5';setTimeout(function(){fl.style.opacity='0';setTimeout(function(){fl.remove()},120)},80)});
+  addPhoto(url);
+}
+// Video recording
+function toggleRec(){
+  if(S.recording){S.recording=false;document.getElementById('shutterBtn').classList.remove('rec');if(S.mediaRecorder&&S.mediaRecorder.state!=='inactive'){S.mediaRecorder.stop();S.mediaRecorder.stream.getTracks().forEach(function(t){t.stop()})}showToast('⏹ 录像已保存');return}
+  if(!S.camStream)return;
+  try{
+    var stream=S.camStream.clone();S.chunks=[];
+    var mt='video/webm;codecs=vp8,opus';if(!MediaRecorder.isTypeSupported(mt)){mt='video/webm'}
+    S.mediaRecorder=new MediaRecorder(stream,{mimeType:mt});
+    S.mediaRecorder.ondataavailable=function(e){if(e.data.size>0)S.chunks.push(e.data)};
+    S.mediaRecorder.onstop=function(){var b=new Blob(S.chunks,{type:S.mediaRecorder.mimeType});addPhoto(URL.createObjectURL(b),'video',b);S.chunks=[]};
+    S.mediaRecorder.start();S.recording=true;
+    document.getElementById('shutterBtn').classList.add('rec');
+    showToast('🔴 录像中...');
+  }catch(e){showToast('⚠️ 录像失败')}
+}
+
+// ===== PHOTOS =====
+function addPhoto(url,type,blob){
+  var it={id:Date.now()+'_'+Math.random().toString(36).slice(2,5),url:url,type:type||'photo',t:Date.now()};
+  if(blob)it.blob=blob;
+  S.photos.unshift(it);savePhotos();updateStrip();
+}
+function updateStrip(){
+  var s=document.getElementById('photoStrip');
+  if(S.photos.length===0){s.innerHTML='<span class="empty">拍照后显示在此</span>';return}
+  var h='';S.photos.slice(0,6).forEach(function(p){h+='<div class="ph" onclick="viewPhoto(\''+p.id+'\')"><img src="'+p.url+'"></div>'});
+  s.innerHTML=h;
+}
+function savePhotos(){localStorage.setItem('lm_ph',JSON.stringify(S.photos.slice(0,50).map(function(p){return{id:p.id,url:p.url,type:p.type,t:p.t}})))}
+function loadPhotos(){try{var r=localStorage.getItem('lm_ph');if(r)S.photos=JSON.parse(r)}catch(e){}}
+
+// ===== GALLERY =====
+function showGallery(){
+  stopCam();
+  document.getElementById('gallery').classList.add('show');
+  renderGallery();
+}
+function closeGallery(){document.getElementById('gallery').classList.remove('show')}
+function renderGallery(){
+  var g=document.getElementById('galGrid'),e=document.getElementById('galEmpty');g.innerHTML='';
+  if(S.photos.length===0){e.style.display='flex';return}
+  e.style.display='none';
+  S.photos.forEach(function(p){var d=document.createElement('div');d.className='gi';d.innerHTML='<img src="'+p.url+'">';d.onclick=function(){viewPhoto(p.id)};g.appendChild(d)});
+}
+function viewPhoto(id){
+  var idx=S.photos.findIndex(function(p){return p.id===id});if(idx<0)return;S.viewIdx=idx;
+  var p=S.photos[idx];document.getElementById('viewContent').innerHTML='<img src="'+p.url+'">';
+  document.getElementById('viewer').classList.add('show');
+  closeGallery();
+}
+function closeViewer(){document.getElementById('viewer').classList.remove('show');stopCam();startCam()}
+function dlMedia(){if(S.viewIdx<0||S.viewIdx>=S.photos.length)return;var p=S.photos[S.viewIdx];var a=document.createElement('a');a.href=p.url;a.download='人鱼_'+(new Date().toISOString().slice(0,19).replace(/[:-]/g,''))+'.jpg';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('💾 已保存')}
+function shareMedia(){if(S.viewIdx<0)return;var p=S.photos[S.viewIdx];if(navigator.share){try{var b=dataURLtoBlob(p.url);navigator.share({files:[new File([b],'photo.jpg',{type:'image/jpeg'})],title:'人鱼补光'}).catch(function(){})}catch(e){}}else{navigator.clipboard.writeText('📸 人鱼补光拍的！').then(function(){showToast('已复制')})}}
+function dataURLtoBlob(u){var p=u.split(','),m=p[0].match(/:(.*?);/)[1],b=atob(p[1]),ab=new ArrayBuffer(b.length),ia=new Uint8Array(ab);for(var i=0;i<b.length;i++)ia[i]=b.charCodeAt(i);return new Blob([ab],{type:m})}
+function delMedia(){if(S.viewIdx<0||S.viewIdx>=S.photos.length)return;S.photos.splice(S.viewIdx,1);S.viewIdx=-1;savePhotos();closeViewer();renderGallery();updateStrip();showToast('🗑 已删除');stopCam();startCam()}
+
+// ===== MODE TOGGLE =====
+var fillOnly=false;
+function toggleMode(){
+  fillOnly=!fillOnly;
+  var fs=document.getElementById('fillScreen');
+  if(fillOnly){
+    stopCam();document.getElementById('mainView').style.display='none';fs.style.display='block';
+    fs.style.background=S.color;fs.style.opacity=S.bright/100;
+    document.getElementById('lightOverlay').style.opacity='0';
+    document.querySelector('.switch-btn').textContent='📷 相机';
+  }else{
+    document.getElementById('mainView').style.display='flex';fs.style.display='none';
+    document.querySelector('.switch-btn').textContent='💡 补光';
+    startCam();updateOverlay();
+  }
+}
+function stopCam(){if(S.camStream){S.camStream.getTracks().forEach(function(t){t.stop()});S.camStream=null}}
 
 // ===== TOOLS =====
-function toggleGrid(){if(!S.isPremium){showPremium();showToast('💎 解锁 Pro 使用网格');return}S.gridOn=!S.gridOn;document.getElementById('gridBtn').classList.toggle('active',S.gridOn);document.querySelectorAll('#layoutOverlay .gl').forEach(function(e){e.style.display=S.gridOn?'block':'none'});showToast(S.gridOn?'网格已显示':'网格已隐藏')}
-function toggleLevel(){if(!S.isPremium){showPremium();showToast('💎 解锁 Pro 使用水平仪');return}S.levelOn=!S.levelOn;document.getElementById('levelBtn').classList.toggle('active',S.levelOn);var ex=document.getElementById('levelI');if(S.levelOn){if(ex)ex.remove();var d=document.createElement('div');d.id='levelI';d.style='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);z-index:2;pointer-events:none;background:rgba(0,0,0,0.2)';var dot=document.createElement('div');dot.id='levelD';dot.style='width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:all .1s';d.appendChild(dot);document.body.appendChild(d);window.addEventListener('deviceorientation',handleL);showToast('📐 水平仪已开启')}else{window.removeEventListener('deviceorientation',handleL);if(ex)ex.remove();showToast('水平仪已关闭')}}
-function handleL(e){var dot=document.getElementById('levelD');if(!dot)return;var g=e.gamma||0,bt=e.beta||0,x=Math.max(-25,Math.min(25,g/45*25)),y=Math.max(-25,Math.min(25,bt/45*25));dot.style.transform='translate(calc(-50% + '+x+'px), calc(-50% + '+y+'px))';dot.style.background=Math.sqrt(x*x+y*y)<5?'#4ade80':'#f87171'}
-function toggleMirror(){S.mirrorOn=!S.mirrorOn;document.getElementById('mirrorBtn').classList.toggle('active',S.mirrorOn);document.getElementById('lightCanvas').style.transform=S.mirrorOn?'scaleX(-1)':'none';showToast(S.mirrorOn?'镜像已开启':'镜像已关闭')}
+function toggleGrid(){S.grid=!S.grid;document.getElementById('gridBtn').classList.toggle('active',S.grid);document.getElementById('gridOverlay').classList.toggle('show',S.grid)}
+function updateBright(v){S.bright=parseInt(v);document.getElementById('brightVal').textContent=v+'%';updateOverlay()}
 
-// ===== WAKE / FULLSCREEN =====
-async function toggleWakeLock(){if(S.wakeOn){if(S.wakeLock)await S.wakeLock.release();S.wakeOn=false;document.getElementById('wakeBtn').classList.remove('active');document.getElementById('wakeIndicator').classList.remove('show');return}try{S.wakeLock=await navigator.wakeLock.request('screen');S.wakeOn=true;document.getElementById('wakeBtn').classList.add('active');document.getElementById('wakeIndicator').classList.add('show');S.wakeLock.addEventListener('release',function(){S.wakeOn=false;document.getElementById('wakeBtn').classList.remove('active');document.getElementById('wakeIndicator').classList.remove('show')})}catch(e){}}
-function toggleFullscreen(){if(!document.fullscreenElement){document.documentElement.requestFullscreen().catch(function(){})}else{document.exitFullscreen().catch(function(){})}}
+// ===== WAKE =====
+async function toggleWake(){if(S.wake){if(S.wakeLock)await S.wakeLock.release();S.wake=false;document.getElementById('wakeBtn').classList.remove('active');return}try{S.wakeLock=await navigator.wakeLock.request('screen');S.wake=true;document.getElementById('wakeBtn').classList.add('active')}catch(e){}}
 
-// ===== PREMIUM (FIXED) =====
-function showPremium(){
+// ===== TAP =====
+var showC=true,th=null;
+function setupTap(){
+  document.addEventListener('click',function(e){if(e.target.closest('#controls')||e.target.closest('#topBar')||e.target.closest('#proPanel')||e.target.closest('#gallery')||e.target.closest('#viewer')||e.target.closest('#qrBig'))return;toggleC()});
+  resetTH();
+}
+function toggleC(){showC=!showC;document.getElementById('controls').classList.toggle('hide',!showC);document.getElementById('topBar').classList.toggle('hide',!showC);if(showC)resetTH()}
+function resetTH(){if(th)clearTimeout(th);th=setTimeout(function(){if(showC){showC=false;document.getElementById('controls').classList.add('hide');document.getElementById('topBar').classList.add('hide')}},5000)}
+
+// ===== PREMIUM =====
+function showPro(){
   ['pwq','paq'].forEach(function(id){
     var el=document.getElementById(id);if(!el)return;
     var img=new Image();var src=id==='pwq'?'images/wechat_qr.jpg':'images/alipay_qr.jpg';
@@ -284,51 +440,56 @@ function showPremium(){
     img.onerror=function(){el.innerHTML='📱 放收款码'};
     img.src=src;
   });
-  document.getElementById('premiumPanel').classList.add('show');
+  document.getElementById('proPanel').classList.add('show');
 }
-function hidePremium(){
-  document.getElementById('premiumPanel').classList.remove('show');
+function hidePro(){
+  document.getElementById('proPanel').classList.remove('show');
   document.getElementById('unlockCD').style.display='none';
   document.getElementById('payBtn').disabled=false;
   document.getElementById('payBtn').style.opacity='1';
 }
 function doUnlock(){
-  var btn=document.getElementById('payBtn');
-  btn.disabled=true;btn.style.opacity='0.4';
-  var cd=document.getElementById('unlockCD');
-  cd.style.display='block';cd.textContent='3';
+  var btn=document.getElementById('payBtn');btn.disabled=true;btn.style.opacity='0.4';
+  var cd=document.getElementById('unlockCD');cd.style.display='block';cd.textContent='3';
   var sec=3;
   var timer=setInterval(function(){
-    sec--;
-    cd.textContent=sec;
+    sec--;cd.textContent=sec;
     if(sec<=0){
       clearInterval(timer);
-      S.isPremium=true;
-      localStorage.setItem('lm_p','true');
-      hidePremium();
+      S.isPrem=true;localStorage.setItem('lm_p','true');
+      hidePro();
       renderColors();
-      showToast('✅ Pro 已永久激活！所有功能已开放');
+      showToast('✅ Pro 已永久激活！');
     }
   },1000);
 }
 function enlargeQR(type){
-  var img=document.getElementById('qrLargeImg');
+  var img=document.getElementById('qrImg');
   var src=type==='wechat'?'images/wechat_qr.jpg':'images/alipay_qr.jpg';
-  var tst=new Image();
-  tst.onload=function(){img.src=src;document.getElementById('qrEnlarge').style.display='flex'};
-  tst.onerror=function(){showToast('请先放收款码到 images/ 文件夹')};
-  tst.src=src;
+  var t=new Image();
+  t.onload=function(){img.src=src;document.getElementById('qrBig').style.display='flex'};
+  t.onerror=function(){showToast('请放收款码到 images/')};
+  t.src=src;
 }
-function closeQR(){document.getElementById('qrEnlarge').style.display='none'}
+function closeQR(){document.getElementById('qrBig').style.display='none'}
 
-function shareApp(){var u=location.href,t='📸 人鱼补光 - 手机补光灯！比小猫补光灯更好用！';if(navigator.share){navigator.share({title:'人鱼补光',text:t,url:u}).catch(function(){})}else{navigator.clipboard.writeText(t+'\n'+u).then(function(){showToast('已复制')})}}
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show')},2200)}
-function updateStatusLabel(){var mn={steady:'常亮',breathe:'呼吸',pulse:'闪烁',gradient:'渐变',aurora:'极光',candle:'烛光',music:'律动',strobe:'爆闪'};document.getElementById('modeLabel').textContent=mn[S.mode]||S.mode;document.getElementById('colorLabel').textContent=S.colorName}
+// ===== SHUTTER HANDLER =====
+document.addEventListener('DOMContentLoaded',function(){
+  init();
+  var shutter=document.getElementById('shutterBtn');
+  var holdT=null;
+  shutter.addEventListener('click',function(){if(!S.recording)capturePhoto()});
+  shutter.addEventListener('mousedown',function(){holdT=setTimeout(function(){toggleRec();holdT='rec'},400)});
+  shutter.addEventListener('mouseup',function(){if(holdT&&holdT!=='rec'){clearTimeout(holdT)};holdT=null});
+  shutter.addEventListener('touchstart',function(e){e.preventDefault();holdT=setTimeout(function(){toggleRec();holdT='rec'},400)},{passive:false});
+  shutter.addEventListener('touchend',function(e){e.preventDefault();if(holdT&&holdT!=='rec'){clearTimeout(holdT);holdT=null;capturePhoto()}else if(holdT==='rec'){holdT=null}},{passive:false});
+});
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show')},2000)}
+function updateStatus(){}
 
 // Aurora CSS
-var as=document.createElement('style');as.textContent='@keyframes auAn{0%{background-position:0% 50%}25%{background-position:100% 0%}50%{background-position:100% 100%}75%{background-position:0% 100%}100%{background-position:0% 50%}}';document.head.appendChild(as);
-
-document.addEventListener('DOMContentLoaded',init);
+var as=document.createElement('style');as.textContent='@keyframes aurora{0%{background-position:0% 50%}25%{background-position:100% 0%}50%{background-position:100% 100%}75%{background-position:0% 100%}100%{background-position:0% 50%}}';document.head.appendChild(as);
 </script>
 </body>
 </html>
