@@ -193,10 +193,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
       <div class="mode-btn" data-mode="breathe" onclick="selectMode('breathe')"><span class="mi">〰️</span>呼吸</div>
       <div class="mode-btn" data-mode="pulse" onclick="selectMode('pulse')"><span class="mi">⚡</span>闪烁</div>
       <div class="mode-btn" data-mode="gradient" onclick="selectMode('gradient')"><span class="mi">🌈</span>渐变</div>
-      <div class="mode-btn" data-mode="aurora" onclick="selectMode('aurora')"><span class="mi">🌌</span>极光</div>
+      <div class="mode-btn" data-mode="aurora" onclick="selectMode('aurora')"><span class="mi">🌌</span>极光<span style="font-size:.45rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px;vertical-align:super">Pro</span></div>
       <div class="mode-btn" data-mode="candle" onclick="selectMode('candle')"><span class="mi">🕯️</span>烛光</div>
-      <div class="mode-btn" data-mode="music" onclick="selectMode('music')"><span class="mi">🎵</span>律动</div>
-      <div class="mode-btn" data-mode="strobe" onclick="selectMode('strobe')"><span class="mi">💥</span>爆闪</div>
+      <div class="mode-btn" data-mode="music" onclick="selectMode('music')"><span class="mi">🎵</span>律动<span style="font-size:.45rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px;vertical-align:super">Pro</span></div>
+      <div class="mode-btn" data-mode="strobe" onclick="selectMode('strobe')"><span class="mi">💥</span>爆闪<span style="font-size:.45rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:1px 4px;margin-left:2px;vertical-align:super">Pro</span></div>
     </div>
     <div class="slider-row">
       <label>💨</label>
@@ -222,10 +222,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
   </div>
   <div class="panel" id="panelTools">
     <div class="tools-row">
-      <button class="tool-btn" id="gridBtn" onclick="toggleGrid()">⊞ 网格</button>
-      <button class="tool-btn" id="levelBtn" onclick="toggleLevel()">◎ 水平仪</button>
+      <button class="tool-btn" id="gridBtn" onclick="toggleGrid()">⊞ 网格<span style="font-size:.5rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:0 3px;margin-left:2px">Pro</span></button>
+      <button class="tool-btn" id="levelBtn" onclick="toggleLevel()">◎ 水平仪<span style="font-size:.5rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:0 3px;margin-left:2px">Pro</span></button>
       <button class="tool-btn" id="timerBtn" onclick="toggleTimer()">⏱ 定时</button>
-      <button class="tool-btn" id="mirrorBtn" onclick="toggleMirror()">🪞 镜像</button>
+      <button class="tool-btn" id="mirrorBtn" onclick="toggleMirror()">🪞 镜像<span style="font-size:.5rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border-radius:3px;padding:0 3px;margin-left:2px">Pro</span></button>
       <button class="tool-btn" onclick="openCamera()" style="color:#4ade80">📷 相机</button>
     </div>
     <div class="slider-row" id="timerRow" style="display:none">
@@ -243,12 +243,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
   </div>
 </div>
 
-<!-- CAMERA -->
+<!-- CAMERA with fill light -->
 <div id="cameraView">
   <video id="camVideo" autoplay playsinline muted></video>
+  <!-- Fill light overlay on camera -->
+  <div id="camLightOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:17;pointer-events:none;opacity:0.25;transition:opacity .3s,background .3s;mix-blend-mode:overlay"></div>
   <div class="cam-top">
     <button onclick="closeCamera()">✕</button>
-    <button onclick="showGallery()">🖼</button>
+    <button onclick="toggleBeauty()" id="beautyBtn" style="font-size:.75rem;width:auto;padding:0 10px">✨ 美颜</button>
   </div>
   <div class="cam-bottom">
     <div id="photoStrip"><span class="empty-hint">拍照后显示在此</span></div>
@@ -259,9 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
     </div>
   </div>
   <canvas id="photoCanvas" style="display:none"></canvas>
-</div>
-
-<!-- GALLERY -->
+</div><!-- GALLERY -->
 <div id="galleryPanel">
   <div class="gal-top">
     <h3>🖼 照片 / 视频</h3>
@@ -296,11 +296,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Micr
       <div class="qi" onclick="enlargeQR('alipay')"><div class="qb" id="paq"><span>支付宝收款码</span></div><div class="ql">💙 支付宝</div></div>
     </div>
     <div class="tip">👆 点击二维码放大 → 长按识别付款</div>
-    <div class="tip">付款后找作者获取激活码</div>
-    <div style="margin-bottom:10px">
-      <input type="text" id="activateCode" placeholder="输入激活码" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-size:.82rem;width:100%;text-align:center;outline:none" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
-    </div>
-    <div><button class="btn-unlock" onclick="activatePremium()">✅ 输入激活码解锁</button></div>
+    <div class="tip">付款后点击下方按钮，3秒自动激活</div>
+    <div><button class="btn-unlock" id="payBtn" onclick="startUnlock()">💎 我已付款，立即解锁 ¥6.66</button></div>
+    <div id="unlockCountdown" style="font-size:2rem;font-weight:700;color:#4ade80;margin:8px 0;display:none">3</div>
     <div style="margin-top:8px"><button class="btn-close" onclick="hidePremium()">稍后再说</button></div>
   </div>
 </div>
@@ -423,15 +421,16 @@ function shareApp(){const u=window.location.href,t='📸 人鱼补光！30种配
 async function openCamera(){
   document.getElementById('cameraView').classList.add('show');
   hideControls();
+  // Show fill light overlay matching current selected color
+  var ov=document.getElementById('camLightOverlay');
+  if(ov){ov.style.background=S.color;ov.style.opacity=S.isPremium?'0.35':'0.2'}
   try{
     S.camStream=await navigator.mediaDevices.getUserMedia({audio:true,video:{facingMode:S.camFacing,width:{ideal:1920},height:{ideal:1080}}});
-    const vid=document.getElementById('camVideo');vid.srcObject=S.camStream;
-    // Apply front-camera CSS flip so preview is natural (non-mirrored)
+    var vid=document.getElementById('camVideo');vid.srcObject=S.camStream;
     if(S.camFacing==='user')vid.classList.add('front-cam');else vid.classList.remove('front-cam');
   }catch(e){showToast('⚠️ 无法打开相机: '+e.message);closeCamera()}
   updateStrip();
-}
-function closeCamera(){
+}function closeCamera(){
   if(S.camStream){S.camStream.getTracks().forEach(t=>t.stop());S.camStream=null}
   document.getElementById('cameraView').classList.remove('show');
   showControls();
@@ -546,6 +545,19 @@ document.querySelectorAll('.mode-btn').forEach(function(btn){
       return;
     }
   });
+});
+
+// Beauty mode toggle
+function toggleBeauty(){
+  S._beautyOn=!S._beautyOn;
+  document.getElementById('beautyBtn').style.background=S._beautyOn?'rgba(74,222,128,0.3)':'rgba(255,255,255,0.15)';
+  showToast(S._beautyOn?'✨ 美颜已开启':'美颜已关闭');
+}
+// Update camera light overlay with selected color
+function updateCamLight(){var ov=document.getElementById("camLightOverlay");if(ov){ov.style.background=S.color;ov.style.opacity=S.isPremium?0.35:0.2}}
+// Update light overlay when returning to camera
+document.addEventListener('DOMContentLoaded',function(){
+  var origOpen=openCamera;
 });
 // Aurora CSS
 document.head.appendChild((()=>{const s=document.createElement('style');s.textContent='@keyframes auroraAnim{0%{background-position:0% 50%}25%{background-position:100% 0%}50%{background-position:100% 100%}75%{background-position:0% 100%}100%{background-position:0% 50%}}';return s})());
